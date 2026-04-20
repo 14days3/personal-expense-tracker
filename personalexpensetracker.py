@@ -2,6 +2,7 @@
 import json
 import os
 from datetime import datetime
+import textwrap
 entries = []
 def save_to_file():
     #add an input asking the user to name their file
@@ -61,6 +62,7 @@ def menu():
 
 def entry():
     #initialize variables so I don't get the fucking warnings
+    category = None
     particulars = None
     income = None
     expense = None
@@ -73,6 +75,7 @@ def entry():
     current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     user_date = input(f"Date [{current_date}](press Enter to keep the default date or follow the format): ").strip()
     date = user_date if user_date else current_date
+    category = input("Category: ")
     date_convert = datetime.strptime(date, "%Y-%m-%d %H:%M")
     if entry_choice == 1:
         particulars = input("Particulars: ")
@@ -89,6 +92,7 @@ def entry():
         "particulars": particulars,
         "expense": expense,
         "income": income,
+        "category": category,
     }
     entries.append(entry_data)
     print("Entry added successfully!")
@@ -96,14 +100,22 @@ def entry():
 #add text wrapping on the particulars smh
 def print_table():
     entries.sort(key=lambda e: datetime.strptime(e["date"], "%Y-%m-%d %H:%M"))
-    print("\n" + "=" * 150)
-    print(f"{'#':<5} {'Date':<16} {'Particulars':<25} {'Out':>50} {'In':>25}")
-    print("-" * 150)
+
+    col_width = 20
+
+    print("\n" + "=" * 120)
+    print(f"{'#':<5} {'Date':<16} {'Category':<15} {'Particulars':<20} {'Out':>10} {'In':>10}")
+    print("-" * 120)
 
     for i, e in enumerate(entries):
-        print(f"{i:<5} {e['date']:<10} {e['particulars']:<25} {e['expense']:>50} {e['income']:>25}")
+        wrapped_particulars = textwrap.wrap(e["particulars"], width=col_width)
 
-    print("=" * 150)
+        print(f"{i:<5} {e['date']:<16} {e['category']:<15} {wrapped_particulars[0]:<20} {str(e['expense']):>10} {str(e['income']):>10}")
+
+        for line in wrapped_particulars[1:]:
+            print(f"{'':<5} {'':<16} {'':<15} {line:<20} {'':>10} {'':>10}")
+
+    print("=" * 120)
 
 def remove_entry():
     if not entries:
